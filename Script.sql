@@ -87,3 +87,7 @@ AS
 BEGIN
 	DELETE Empleado WHERE idEmpleado = @idEmpleado;
 END
+
+
+SELECT * FROM Empleado;
+SELECT * FROM Departamento;

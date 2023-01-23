@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProyectoCRUD_MVC.Models;
+using ProyectoCRUD_MVC.Repositorios.Contrato;
 using System.Diagnostics;
 
 namespace ProyectoCRUD_MVC.Controllers
@@ -7,10 +8,15 @@ namespace ProyectoCRUD_MVC.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IGenericRepository<Departamento> _departamentoRepository;
+        private readonly IGenericRepository<Empleado> _empleadoRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+
+        public HomeController(ILogger<HomeController> logger, IGenericRepository<Departamento> departamentoRepository, IGenericRepository<Empleado> empleadoRepository)
         {
             _logger = logger;
+            _departamentoRepository = departamentoRepository;
+            _empleadoRepository = empleadoRepository;
         }
 
         public IActionResult Index()
@@ -18,6 +24,49 @@ namespace ProyectoCRUD_MVC.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ListaDepartamentos()
+        {
+            List<Departamento> _lista = await _departamentoRepository.Lista();
+            return StatusCode(StatusCodes.Status200OK, _lista);
+        }
+
+        [HttpGet]   
+        public async Task<IActionResult> ListaEmpleados()
+        {
+            List<Empleado> _lista = await _empleadoRepository.Lista();
+            return StatusCode(StatusCodes.Status200OK, _lista);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> guardarEmpleado([FromBody] Empleado modelo)
+        {
+            bool _resultado = await _empleadoRepository.Guardar(modelo);
+            if (_resultado)
+                return StatusCode(StatusCodes.Status200OK, new { valor = _resultado, msg="ok" });
+            else
+                return StatusCode(StatusCodes.Status500InternalServerError, new { valor = _resultado, msg = "error" });
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> editarEmpleado([FromBody] Empleado modelo)
+        {
+            bool _resultado = await _empleadoRepository.Editar(modelo);
+            if (_resultado)
+                return StatusCode(StatusCodes.Status200OK, new { valor = _resultado, msg = "ok" });
+            else
+                return StatusCode(StatusCodes.Status500InternalServerError, new { valor = _resultado, msg = "error" });
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> eliminarEmpleado(int idEmpleado)
+        {
+            bool _resultado = await _empleadoRepository.Eliminar(idEmpleado);
+            if (_resultado)
+                return StatusCode(StatusCodes.Status200OK, new { valor = _resultado, msg = "ok" });
+            else
+                return StatusCode(StatusCodes.Status500InternalServerError, new { valor = _resultado, msg = "error" });
+        }
         public IActionResult Privacy()
         {
             return View();
